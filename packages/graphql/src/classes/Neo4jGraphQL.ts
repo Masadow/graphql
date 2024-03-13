@@ -23,7 +23,7 @@ import type { IExecutableSchemaDefinition } from "@graphql-tools/schema";
 import { addResolversToSchema, makeExecutableSchema } from "@graphql-tools/schema";
 import { forEachField, getResolversFromSchema } from "@graphql-tools/utils";
 import Debug from "debug";
-import type { DocumentNode, GraphQLSchema } from "graphql";
+import type { DocumentNode, GraphQLSchema, GraphQLDirective } from "graphql";
 import type { Driver, SessionConfig } from "neo4j-driver";
 import { DEBUG_ALL } from "../constants";
 import { makeAugmentedSchema } from "../schema";
@@ -61,11 +61,13 @@ export interface Neo4jGraphQLConstructor {
     driver?: Driver;
     debug?: boolean;
     validate?: boolean;
+    directives?: Array<GraphQLDirective>;
 }
 
 class Neo4jGraphQL {
     private typeDefs: TypeDefinitions;
     private resolvers?: IExecutableSchemaDefinition["resolvers"];
+    private directives?: Array<GraphQLDirective>;
 
     private driver?: Driver;
     private features: ContextFeatures;
@@ -91,13 +93,14 @@ class Neo4jGraphQL {
     private validate: boolean;
 
     constructor(input: Neo4jGraphQLConstructor) {
-        const { driver, features, typeDefs, resolvers, debug, validate = true } = input;
+        const { driver, features, typeDefs, resolvers, directives, debug, validate = true } = input;
 
         this.driver = driver;
         this.features = this.parseNeo4jFeatures(features);
 
         this.typeDefs = typeDefs;
         this.resolvers = resolvers;
+        this.directives = directives;
 
         this.debug = debug;
         this.validate = validate;
@@ -364,7 +367,7 @@ class Neo4jGraphQL {
                 validateDocument({
                     document: initialDocument,
                     features: this.features,
-                    additionalDefinitions: { enums, interfaces, unions, objects },
+                    additionalDefinitions: { additionalDirectives: this.directives, enums, interfaces, unions, objects },
                     userCustomResolvers: this.resolvers,
                 });
             }
