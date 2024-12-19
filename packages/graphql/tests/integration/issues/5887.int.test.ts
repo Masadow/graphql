@@ -20,7 +20,7 @@
 import type { UniqueType } from "../../utils/graphql-types";
 import { TestHelper } from "../../utils/tests-helper";
 
-describe("https://github.com/neo4j/graphql/issues/5698", () => {
+describe("https://github.com/neo4j/graphql/issues/5887", () => {
     let House: UniqueType;
     let Animal: UniqueType;
     let Cat: UniqueType;
@@ -61,7 +61,7 @@ describe("https://github.com/neo4j/graphql/issues/5698", () => {
         await testHelper.close();
     });
 
-    test("should relationship when first interface match", async () => {
+    test("should return relationship when first interface match", async () => {
         await testHelper.executeCypher(`
             CREATE (:${Dog} {name: "Roxy"})-[:LIVES_IN]->(h:${House} {address: "Toulouse"})
             CREATE (:${Cat} {name: "Nala"})-[:LIVES_IN]->(h)
