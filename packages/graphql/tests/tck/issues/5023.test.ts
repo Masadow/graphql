@@ -111,24 +111,24 @@ describe("https://github.com/neo4j/graphql/issues/5023", () => {
             CALL {
             	WITH this
             	MATCH (this)-[this_has_settings0_relationship:HAS_SETTINGS]->(this_settings0:Settings)
-            	OPTIONAL MATCH (this_settings0)<-[:HAS_SETTINGS]-(authorization__before_this2:Tenant)
-            	WITH *, count(authorization__before_this2) AS authorization__before_var0
-            	WHERE apoc.util.validatePredicate(NOT ($isAuthenticated = true AND (authorization__before_var0 <> 0 AND size([(authorization__before_this2)<-[:ADMIN_IN]-(authorization__before_this1:User) WHERE ($jwt.id IS NOT NULL AND authorization__before_this1.userId = $jwt.id) | 1]) > 0)), \\"@neo4j/graphql/FORBIDDEN\\", [0])
+            	OPTIONAL MATCH (this_settings0)<-[:HAS_SETTINGS]-(authorization_updatebefore_this2:Tenant)
+            	WITH *, count(authorization_updatebefore_this2) AS authorization_updatebefore_var0
+            	WHERE apoc.util.validatePredicate(NOT ($isAuthenticated = true AND (authorization_updatebefore_var0 <> 0 AND size([(authorization_updatebefore_this2)<-[:ADMIN_IN]-(authorization_updatebefore_this1:User) WHERE ($jwt.id IS NOT NULL AND authorization_updatebefore_this1.userId = $jwt.id) | 1]) > 0)), \\"@neo4j/graphql/FORBIDDEN\\", [0])
             	WITH *
             	CALL {
             	WITH *
             	OPTIONAL MATCH (this_settings0)-[this_settings0_extendedOpeningHours0_delete0_relationship:HAS_OPENING_HOURS]->(this_settings0_extendedOpeningHours0_delete0:OpeningDay)
             	CALL {
             	    WITH this_settings0_extendedOpeningHours0_delete0
-            	    MATCH (this_settings0_extendedOpeningHours0_delete0)<-[:HAS_OPENING_HOURS]-(authorization__before_this1:Settings)
-            	    OPTIONAL MATCH (authorization__before_this1)<-[:HAS_SETTINGS]-(authorization__before_this2:Tenant)
-            	    WITH *, count(authorization__before_this2) AS authorization__before_var3
+            	    MATCH (this_settings0_extendedOpeningHours0_delete0)<-[:HAS_OPENING_HOURS]-(authorization_deletebefore_this1:Settings)
+            	    OPTIONAL MATCH (authorization_deletebefore_this1)<-[:HAS_SETTINGS]-(authorization_deletebefore_this2:Tenant)
+            	    WITH *, count(authorization_deletebefore_this2) AS authorization_deletebefore_var3
             	    WITH *
-            	    WHERE (authorization__before_var3 <> 0 AND size([(authorization__before_this2)<-[:ADMIN_IN]-(authorization__before_this4:User) WHERE ($jwt.id IS NOT NULL AND authorization__before_this4.userId = $jwt.id) | 1]) > 0)
-            	    RETURN count(authorization__before_this1) = 1 AS authorization__before_var0
+            	    WHERE (authorization_deletebefore_var3 <> 0 AND size([(authorization_deletebefore_this2)<-[:ADMIN_IN]-(authorization_deletebefore_this4:User) WHERE ($jwt.id IS NOT NULL AND authorization_deletebefore_this4.userId = $jwt.id) | 1]) > 0)
+            	    RETURN count(authorization_deletebefore_this1) = 1 AS authorization_deletebefore_var0
             	}
             	WITH *
-            	WHERE apoc.util.validatePredicate(NOT ($isAuthenticated = true AND authorization__before_var0 = true), \\"@neo4j/graphql/FORBIDDEN\\", [0])
+            	WHERE apoc.util.validatePredicate(NOT ($isAuthenticated = true AND authorization_deletebefore_var0 = true), \\"@neo4j/graphql/FORBIDDEN\\", [0])
             	WITH this_settings0_extendedOpeningHours0_delete0_relationship, collect(DISTINCT this_settings0_extendedOpeningHours0_delete0) AS this_settings0_extendedOpeningHours0_delete0_to_delete
             	CALL {
             		WITH this_settings0_extendedOpeningHours0_delete0_to_delete

@@ -257,9 +257,9 @@ describe("@auth allow on specific interface implementation", () => {
             CALL {
             	WITH this
             	MATCH (this)-[this_has_content0_relationship:HAS_CONTENT]->(this_content0:Post)
-            	OPTIONAL MATCH (this_content0)<-[:HAS_CONTENT]-(authorization__before_this1:User)
-            	WITH *, count(authorization__before_this1) AS authorization__before_var0
-            	WHERE apoc.util.validatePredicate(NOT ($isAuthenticated = true AND (authorization__before_var0 <> 0 AND ($jwt.sub IS NOT NULL AND authorization__before_this1.id = $jwt.sub))), \\"@neo4j/graphql/FORBIDDEN\\", [0])
+            	OPTIONAL MATCH (this_content0)<-[:HAS_CONTENT]-(authorization_updatebefore_this1:User)
+            	WITH *, count(authorization_updatebefore_this1) AS authorization_updatebefore_var0
+            	WHERE apoc.util.validatePredicate(NOT ($isAuthenticated = true AND (authorization_updatebefore_var0 <> 0 AND ($jwt.sub IS NOT NULL AND authorization_updatebefore_this1.id = $jwt.sub))), \\"@neo4j/graphql/FORBIDDEN\\", [0])
             	SET this_content0.id = $this_update_content0_id
             	WITH this, this_content0
             	CALL {

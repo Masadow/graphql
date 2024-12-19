@@ -104,10 +104,10 @@ describe("https://github.com/neo4j/graphql/issues/3929", () => {
             CALL {
             WITH *
             OPTIONAL MATCH (this)<-[this_delete_members0_relationship:MEMBER_OF]-(this_delete_members0:Person)
-            OPTIONAL MATCH (this_delete_members0)<-[:CREATOR_OF]-(authorization__before_this1:User)
-            WITH *, count(authorization__before_this1) AS authorization__before_var0
+            OPTIONAL MATCH (this_delete_members0)<-[:CREATOR_OF]-(authorization_deletebefore_this1:User)
+            WITH *, count(authorization_deletebefore_this1) AS authorization_deletebefore_var0
             WITH *
-            WHERE this_delete_members0.id = $updateGroups_args_delete_members0_where_this_delete_members0param0 AND apoc.util.validatePredicate(NOT ($isAuthenticated = true AND (authorization__before_var0 <> 0 AND ($jwt.uid IS NOT NULL AND authorization__before_this1.id = $jwt.uid))), \\"@neo4j/graphql/FORBIDDEN\\", [0])
+            WHERE this_delete_members0.id = $updateGroups_args_delete_members0_where_this_delete_members0param0 AND apoc.util.validatePredicate(NOT ($isAuthenticated = true AND (authorization_deletebefore_var0 <> 0 AND ($jwt.uid IS NOT NULL AND authorization_deletebefore_this1.id = $jwt.uid))), \\"@neo4j/graphql/FORBIDDEN\\", [0])
             WITH this_delete_members0_relationship, collect(DISTINCT this_delete_members0) AS this_delete_members0_to_delete
             CALL {
             	WITH this_delete_members0_to_delete

@@ -634,9 +634,9 @@ describe("Cypher Auth Where", () => {
             CALL {
             	WITH this
             	MATCH (this)-[this_has_post0_relationship:HAS_POST]->(this_posts0:Post)
-            	OPTIONAL MATCH (this_posts0)<-[:HAS_POST]-(authorization__before_this1:User)
-            	WITH *, count(authorization__before_this1) AS authorization__before_var0
-            	WHERE ($isAuthenticated = true AND (authorization__before_var0 <> 0 AND ($jwt.sub IS NOT NULL AND authorization__before_this1.id = $jwt.sub)))
+            	OPTIONAL MATCH (this_posts0)<-[:HAS_POST]-(authorization_updatebefore_this1:User)
+            	WITH *, count(authorization_updatebefore_this1) AS authorization_updatebefore_var0
+            	WHERE ($isAuthenticated = true AND (authorization_updatebefore_var0 <> 0 AND ($jwt.sub IS NOT NULL AND authorization_updatebefore_this1.id = $jwt.sub)))
             	SET this_posts0.id = $this_update_posts0_id
             	WITH this, this_posts0
             	CALL {
