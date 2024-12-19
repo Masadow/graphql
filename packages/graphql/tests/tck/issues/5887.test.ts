@@ -26,21 +26,20 @@ describe("https://github.com/neo4j/graphql/issues/5887", () => {
 
     beforeAll(() => {
         typeDefs = /* GraphQL */ `
-            type House {
-                address: String!
-                animals: [Animal!]! @relationship(type: "LIVES_IN", direction: IN)
+            interface Base {
+                id: ID!
             }
 
-            interface Animal {
-                name: String!
+            type A implements Base {
+                id: ID!
             }
 
-            type Dog implements Animal {
-                name: String!
+            type B implements Base {
+                id: ID!
             }
 
-            type Cat implements Animal {
-                name: String!
+            type Test {
+                base: Base! @relationship(type: "HAS", direction: OUT)
             }
         `;
 
@@ -55,8 +54,10 @@ describe("https://github.com/neo4j/graphql/issues/5887", () => {
     test("should return relationship when first interface match", async () => {
         const query = /* GraphQL */ `
             query {
-                houses(where: { animals: { name: "Roxy" } }) {
-                    address
+                tests(where: { base: { id: "1" } }) {
+                    base {
+                        id
+                    }
                 }
             }
         `;
@@ -64,21 +65,36 @@ describe("https://github.com/neo4j/graphql/issues/5887", () => {
         const result = await translateQuery(neoSchema, query);
 
         expect(formatCypher(result.cypher)).toMatchInlineSnapshot(`
-            "MATCH (this:House)
-            WHERE (EXISTS {
-                MATCH (this)<-[:LIVES_IN]-(this0:Dog)
-                WHERE this0.name = $param0
-            } OR EXISTS {
-                MATCH (this)<-[:LIVES_IN]-(this1:Cat)
-                WHERE this1.name = $param1
-            })
-            RETURN this { .address } AS this"
+            "MATCH (this:Test)
+            OPTIONAL MATCH (this)-[:HAS]->(this0:A)
+            WITH *, count(this0) AS var1
+            OPTIONAL MATCH (this)-[:HAS]->(this2:B)
+            WITH *, count(this2) AS var3
+            WITH *
+            WHERE ((var1 <> 0 AND this0.id = $param0) OR (var3 <> 0 AND this2.id = $param1))
+            CALL {
+                WITH this
+                CALL {
+                    WITH *
+                    MATCH (this)-[this4:HAS]->(this5:A)
+                    WITH this5 { .id, __resolveType: \\"A\\", __id: id(this5) } AS this5
+                    RETURN this5 AS var6
+                    UNION
+                    WITH *
+                    MATCH (this)-[this7:HAS]->(this8:B)
+                    WITH this8 { .id, __resolveType: \\"B\\", __id: id(this8) } AS this8
+                    RETURN this8 AS var6
+                }
+                WITH var6
+                RETURN head(collect(var6)) AS var6
+            }
+            RETURN this { base: var6 } AS this"
         `);
 
         expect(formatParams(result.params)).toMatchInlineSnapshot(`
             "{
-                \\"param0\\": \\"Roxy\\",
-                \\"param1\\": \\"Roxy\\"
+                \\"param0\\": \\"1\\",
+                \\"param1\\": \\"1\\"
             }"
         `);
     });
@@ -86,8 +102,10 @@ describe("https://github.com/neo4j/graphql/issues/5887", () => {
     test("should return relationship when second interface match", async () => {
         const query = /* GraphQL */ `
             query {
-                houses(where: { animals: { name: "Nala" } }) {
-                    address
+                tests(where: { base: { id: "2" } }) {
+                    base {
+                        id
+                    }
                 }
             }
         `;
@@ -95,21 +113,36 @@ describe("https://github.com/neo4j/graphql/issues/5887", () => {
         const result = await translateQuery(neoSchema, query);
 
         expect(formatCypher(result.cypher)).toMatchInlineSnapshot(`
-            "MATCH (this:House)
-            WHERE (EXISTS {
-                MATCH (this)<-[:LIVES_IN]-(this0:Dog)
-                WHERE this0.name = $param0
-            } OR EXISTS {
-                MATCH (this)<-[:LIVES_IN]-(this1:Cat)
-                WHERE this1.name = $param1
-            })
-            RETURN this { .address } AS this"
+            "MATCH (this:Test)
+            OPTIONAL MATCH (this)-[:HAS]->(this0:A)
+            WITH *, count(this0) AS var1
+            OPTIONAL MATCH (this)-[:HAS]->(this2:B)
+            WITH *, count(this2) AS var3
+            WITH *
+            WHERE ((var1 <> 0 AND this0.id = $param0) OR (var3 <> 0 AND this2.id = $param1))
+            CALL {
+                WITH this
+                CALL {
+                    WITH *
+                    MATCH (this)-[this4:HAS]->(this5:A)
+                    WITH this5 { .id, __resolveType: \\"A\\", __id: id(this5) } AS this5
+                    RETURN this5 AS var6
+                    UNION
+                    WITH *
+                    MATCH (this)-[this7:HAS]->(this8:B)
+                    WITH this8 { .id, __resolveType: \\"B\\", __id: id(this8) } AS this8
+                    RETURN this8 AS var6
+                }
+                WITH var6
+                RETURN head(collect(var6)) AS var6
+            }
+            RETURN this { base: var6 } AS this"
         `);
 
         expect(formatParams(result.params)).toMatchInlineSnapshot(`
             "{
-                \\"param0\\": \\"Nala\\",
-                \\"param1\\": \\"Nala\\"
+                \\"param0\\": \\"2\\",
+                \\"param1\\": \\"2\\"
             }"
         `);
     });
@@ -117,8 +150,10 @@ describe("https://github.com/neo4j/graphql/issues/5887", () => {
     test("should not return relationship when no interface match", async () => {
         const query = /* GraphQL */ `
             query {
-                houses(where: { animals: { name: "Other" } }) {
-                    address
+                tests(where: { base: { id: "x" } }) {
+                    base {
+                        id
+                    }
                 }
             }
         `;
@@ -126,21 +161,36 @@ describe("https://github.com/neo4j/graphql/issues/5887", () => {
         const result = await translateQuery(neoSchema, query);
 
         expect(formatCypher(result.cypher)).toMatchInlineSnapshot(`
-            "MATCH (this:House)
-            WHERE (EXISTS {
-                MATCH (this)<-[:LIVES_IN]-(this0:Dog)
-                WHERE this0.name = $param0
-            } OR EXISTS {
-                MATCH (this)<-[:LIVES_IN]-(this1:Cat)
-                WHERE this1.name = $param1
-            })
-            RETURN this { .address } AS this"
+            "MATCH (this:Test)
+            OPTIONAL MATCH (this)-[:HAS]->(this0:A)
+            WITH *, count(this0) AS var1
+            OPTIONAL MATCH (this)-[:HAS]->(this2:B)
+            WITH *, count(this2) AS var3
+            WITH *
+            WHERE ((var1 <> 0 AND this0.id = $param0) OR (var3 <> 0 AND this2.id = $param1))
+            CALL {
+                WITH this
+                CALL {
+                    WITH *
+                    MATCH (this)-[this4:HAS]->(this5:A)
+                    WITH this5 { .id, __resolveType: \\"A\\", __id: id(this5) } AS this5
+                    RETURN this5 AS var6
+                    UNION
+                    WITH *
+                    MATCH (this)-[this7:HAS]->(this8:B)
+                    WITH this8 { .id, __resolveType: \\"B\\", __id: id(this8) } AS this8
+                    RETURN this8 AS var6
+                }
+                WITH var6
+                RETURN head(collect(var6)) AS var6
+            }
+            RETURN this { base: var6 } AS this"
         `);
 
         expect(formatParams(result.params)).toMatchInlineSnapshot(`
             "{
-                \\"param0\\": \\"Other\\",
-                \\"param1\\": \\"Other\\"
+                \\"param0\\": \\"x\\",
+                \\"param1\\": \\"x\\"
             }"
         `);
     });
