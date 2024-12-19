@@ -82,7 +82,7 @@ describe("https://github.com/neo4j/graphql/issues/5698", () => {
         });
     });
 
-    test("should relationship when second interface match", async () => {
+    test("should return relationship when second interface match", async () => {
         await testHelper.executeCypher(`
             CREATE (:${Dog} {name: "Roxy"})-[:LIVES_IN]->(h:${House} {address: "Toulouse"})
             CREATE (:${Cat} {name: "Nala"})-[:LIVES_IN]->(h)
